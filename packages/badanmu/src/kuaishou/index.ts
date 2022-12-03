@@ -4,7 +4,7 @@ import protobuf from 'protobufjs'
 import { cookies } from './config'
 import { decodeMsg } from './decode'
 import { getLiveStreamId, getPageId, getTokenInfo, getWebSocketInfo, makeCookie } from './helper'
-import { log2 } from '../log'
+// import { log2 } from '../log'
 import Client, { ID } from '../client'
 import login, { SessionInfo } from './login'
 import protoJson from './kuaishou.proto.json'
@@ -66,7 +66,7 @@ export default class Kuaishou extends Client {
     const defaultCookie = makeCookie(cookies)
     const tokenInfo = await getTokenInfo(defaultCookie)
     if (tokenInfo.errorMsg) {
-      log2.log(this.roomInfo(), tokenInfo.errorMsg)
+      // log2.log(this.roomInfo(), tokenInfo.errorMsg)
       return Promise.reject('连接失败')
     }
 
@@ -123,13 +123,13 @@ export default class Kuaishou extends Client {
     } = wsParams
 
     if (!(url && liveStreamId && token)) {
-      log2.debug(this.roomInfo(), '参数不正常', wsParams)
+      // log2.debug(this.roomInfo(), '参数不正常', wsParams)
       return undefined
     }
 
     const client = new WebSocket(url)
     client.binaryType = 'arraybuffer'
-    log2.info(this.roomInfo(), 'ws 创建成功', url)
+    // log2.info(this.roomInfo(), 'ws 创建成功', url)
 
     client.on('open', () => {
       this.emit('open')
@@ -142,7 +142,7 @@ export default class Kuaishou extends Client {
     client.on('close', (code, reason) => {
       this.intervalId && clearInterval(this.intervalId)
       this.emit('close', code, reason)
-      log2.log('client closed', code, reason)
+      // log2.log('client closed', code, reason)
     })
     client.on('error', (error) => this.emit('error', error))
     client.on('message', (data) => {
@@ -155,7 +155,7 @@ export default class Kuaishou extends Client {
 
       switch (msg.type) {
         case 'SC_ERROR': {
-          log2.error('SC_ERROR', msg)
+          // log2.error('SC_ERROR', msg)
           this.emit('close', -1, 'SC_ERROR')
           this.client?.close()
           break
@@ -174,11 +174,11 @@ export default class Kuaishou extends Client {
           break
         }
         case 'SC_FEED_PUSH': {
-          log2.log('push msg', JSON.stringify(msg.payload))
+          // log2.log('push msg', JSON.stringify(msg.payload))
           break
         }
         default:
-          log2.debug('unkown msg', msg)
+          // log2.debug('unkown msg', msg)
           break
       }
     })

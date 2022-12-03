@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 
 import { HUYA, Taf, TafMx } from './lib'
 import { getCommetMsg, getGiftMsg } from './helper'
-import { log2 } from '../log'
+// import { log2 } from '../log'
 import Client, { Gift, Comment } from '../client'
 import toArrayBuffer from './to-arraybuffer'
 
@@ -36,7 +36,7 @@ export default class Huya extends Client {
   static url = 'wss://cdnws.api.huya.com'
   platform_id = '10002'
   clientName = '接收线程'
-  client?: WebSocket
+  // client?: WebSocket
   _main_user_id: HUYA.UserId
   chatInfo = {} as ChatInfo
   heartbeatTimer?: NodeJS.Timeout
@@ -68,8 +68,8 @@ export default class Huya extends Client {
         this.client = this.createClient()
       })
       .catch((e) => {
-        log2.log('出错了')
-        log2.error(e)
+        // log2.log('出错了')
+        // log2.error(e)
         this.emit('error', e)
       })
   }
@@ -107,12 +107,12 @@ export default class Huya extends Client {
     })
 
     client.on('error', (hasError) => {
-      log2.log('error', hasError)
+      // log2.log('error', hasError)
       this.emit('error', hasError)
     })
 
     client.on('close', (code, reason) => {
-      log2.log('close', code, reason)
+      // log2.log('close', code, reason)
       this.emit('close', code, reason)
       this.client?.close()
     })
@@ -186,7 +186,7 @@ export default class Huya extends Client {
             break
         }
       } catch (e) {
-        log2.error('接收信息出错', e)
+        // log2.error('接收信息出错', e)
       }
     })
 
@@ -243,7 +243,7 @@ export default class Huya extends Client {
     }
     const currTime = Date.now()
     if (currTime - this.startTime > 30 * 1000 && !this.isLogin) {
-      log2.info(this.roomInfo() + '登录超时')
+      // log2.info(this.roomInfo() + '登录超时')
       this.exit()
       return
     }
@@ -265,7 +265,7 @@ export default class Huya extends Client {
       command.writeTo(stream)
       this.client?.send(stream.getBuffer())
     } catch (err) {
-      this.emit('error', err)
+      this.emit('error', err as any)
     }
   }
 }

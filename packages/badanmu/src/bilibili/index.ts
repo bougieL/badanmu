@@ -74,7 +74,7 @@ const createClient = ({ info, onOpen, onClose, onMessage, onError }: Parameters)
 }
 
 export default class Bilibili extends Client {
-  public client?: WebSocket
+  // public client?: WebSocket
 
   constructor(roomID: ID) {
     super('bilibili', roomID)
