@@ -1,7 +1,7 @@
 import WebSocket from 'ws'
 import fetch from 'node-fetch'
 
-import { DanmuPacket, decode, encode, parseComment, parseGift } from './helper'
+import { DanmuPacket, decode, encode, parseComment, parseGift, parseSystemInfo } from './helper'
 import Client from '../client'
 
 const apiURL = 'https://api.live.bilibili.com/room/v1/Room/room_init'
@@ -13,17 +13,15 @@ type Info = {
 }
 
 const getRoomInfo = (roomID: ID): Promise<Info> => {
-  return new Promise((resolve, reject) => {
-    return fetch(`${apiURL}?id=${roomID}`)
-      .then((t) => t.json() as { data?: Info })
-      .then((info) => {
-        const { data } = info
-        if (data) {
-          return resolve(data)
-        }
-        return reject(info)
-      })
-  })
+  return fetch(`${apiURL}?id=${roomID}`)
+    .then((t) => t.json() as { data?: Info })
+    .then((info) => {
+      const { data } = info
+      if (data) {
+        return data
+      }
+      throw info
+    })
 }
 
 type Parameters = {
@@ -36,6 +34,8 @@ type Parameters = {
 
 const createClient = ({ info, onOpen, onClose, onMessage, onError }: Parameters) => {
   const ws = new WebSocket('wss://broadcastlv.chat.bilibili.com/sub')
+
+  let timer: NodeJS.Timeout
 
   ws.on('message', (data) => {
     if (data) {
@@ -51,7 +51,12 @@ const createClient = ({ info, onOpen, onClose, onMessage, onError }: Parameters)
     }
   })
 
-  if (onClose) ws.on('close', onClose)
+  if (onError) ws.on('error', onError)
+
+  ws.on('close', (...params) => {
+    onClose?.(...params)
+    clearInterval(timer)
+  })
 
   ws.on('open', () => {
     const msg = JSON.stringify({
@@ -63,9 +68,9 @@ const createClient = ({ info, onOpen, onClose, onMessage, onError }: Parameters)
     })
     ws.send(encode(msg, 7))
 
-    setInterval(function () {
+    timer = setInterval(function () {
       ws.send(encode('', 2))
-    }, 30000)
+    }, 5000)
 
     onOpen?.()
   })
@@ -92,6 +97,9 @@ export default class Bilibili extends Client {
           this.emit('message', parseComment(msg.info))
         } else if (cmd === 'SEND_GIFT') {
           this.emit('message', parseGift(msg.data))
+        } else if (cmd === 'INTERACT_WORD') {
+          console.log(msg.data, parseSystemInfo(msg.data))
+          this.emit('message', parseSystemInfo(msg.data))
         }
       })
     }
@@ -102,5 +110,6 @@ export default class Bilibili extends Client {
     getRoomInfo(roomID)
       .then((info) => createClient({ info, onOpen, onMessage, onClose, onError }))
       .then((client) => (this.client = client))
+      .catch(onError)
   }
 }

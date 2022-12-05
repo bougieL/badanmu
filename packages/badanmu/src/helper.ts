@@ -10,6 +10,9 @@ export const enum CommonType {
   //接入 刷血
   BUFF_HP = 200,
   BUFF_AMMO = 201,
+
+  ENTER = 300,
+  FOLLOW = 301,
 }
 
 export const getCommonType = (comment: string): CommonType => {

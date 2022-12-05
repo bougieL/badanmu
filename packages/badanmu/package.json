@@ -5,7 +5,7 @@
   "main": "cjs/index.js",
   "module": "esm/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=developement nodemon ./src/test.ts",
     "cli": "ts-node ./src/cli.ts",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=developement nodemon ./src/server.ts",

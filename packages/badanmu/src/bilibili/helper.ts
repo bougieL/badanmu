@@ -1,7 +1,7 @@
 import pako from 'pako'
 
-import { Comment, Gift } from '../client'
-import { uuid } from '../helper'
+import { Comment, Gift, SystemInfo } from '../client'
+import { CommonType, uuid } from '../helper'
 
 /**
  * 回传消息数据包
@@ -95,11 +95,13 @@ export const decode = (data: ArrayBuffer): DanmuPacket => {
 }
 
 export const parseComment = (rawMsg: any[]): Comment => {
+  // console.log(rawMsg)
   return {
     type: 'comment',
     code: -1,
     commonType: -1,
     data: rawMsg[1],
+    avatar: rawMsg[0][13]?.url,
     playerName: rawMsg[2][1],
     ts: Date.now(),
     uuid: uuid(),
@@ -107,7 +109,7 @@ export const parseComment = (rawMsg: any[]): Comment => {
 }
 
 export const parseGift = (rawMsg: Record<string, any>): Gift => {
-  const { giftName, giftType, giftId, super_gift_num, super_batch_gift_num, batch_combo_id, uname, num } = rawMsg
+  const { giftName, giftType, giftId, super_gift_num, super_batch_gift_num, batch_combo_id, uname, num, face } = rawMsg
   return {
     type: 'gift',
     code: 200,
@@ -116,6 +118,7 @@ export const parseGift = (rawMsg: Record<string, any>): Gift => {
     commentId: giftId,
     giftName,
     giftType,
+    avatar: face,
     playerName: uname,
     num: parseInt(num) || 1,
     combo: super_gift_num || 1,
@@ -123,5 +126,18 @@ export const parseGift = (rawMsg: Record<string, any>): Gift => {
     data: `礼物：${giftName} ${num}个`,
     batchId: batch_combo_id,
     uuid: uuid(),
+  }
+}
+
+export const parseSystemInfo = (rawMsg: Record<string, any>): SystemInfo => {
+  const { uname } = rawMsg
+  return {
+    type: 'system',
+    code: 200,
+    data: '进入直播间',
+    playerName: uname,
+    commonType: CommonType.ENTER,
+    uuid: uuid(),
+    ts: Date.now(),
   }
 }

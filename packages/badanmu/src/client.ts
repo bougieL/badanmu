@@ -88,8 +88,8 @@ export default abstract class Client extends EventEmiter {
     return `${this.platform || ''}平台，${this.roomID}房间`
   }
 
-  stop(): void {
-    this.client?.close()
+  stop(code?: number | undefined, data?: string | undefined): void {
+    this.client?.close(code || 0, data)
   }
 
   emit(event: 'open'): boolean
@@ -98,7 +98,7 @@ export default abstract class Client extends EventEmiter {
   emit(event: 'login', success: boolean): boolean
   emit(event: 'logout', success: boolean): boolean
   emit(event: 'requireLogin', data: string): boolean
-  emit(event: 'message', data: Gift | Comment): boolean
+  emit(event: 'message', data: Gift | Comment | SystemInfo): boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   emit(event: string | symbol, ...args: any[]): boolean {
     return super.emit(event, ...args)
