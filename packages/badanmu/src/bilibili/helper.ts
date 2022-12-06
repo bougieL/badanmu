@@ -130,13 +130,19 @@ export const parseGift = (rawMsg: Record<string, any>): Gift => {
 }
 
 export const parseSystemInfo = (rawMsg: Record<string, any>): SystemInfo => {
-  const { uname } = rawMsg
+  const { uname, msg_type } = rawMsg
+  let data = '进入直播间'
+  if (msg_type === 2) {
+    data = '关注直播间'
+  }
+
   return {
     type: 'system',
     code: 200,
-    data: '进入直播间',
+    data,
     playerName: uname,
-    commonType: CommonType.ENTER,
+    commonType: 200,
+    msgType: msg_type, // 1 - 進入直播間，2 - 關注直播間
     uuid: uuid(),
     ts: Date.now(),
   }

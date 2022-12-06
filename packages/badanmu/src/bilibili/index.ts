@@ -98,7 +98,6 @@ export default class Bilibili extends Client {
         } else if (cmd === 'SEND_GIFT') {
           this.emit('message', parseGift(msg.data))
         } else if (cmd === 'INTERACT_WORD') {
-          console.log(msg.data, parseSystemInfo(msg.data))
           this.emit('message', parseSystemInfo(msg.data))
         }
       })

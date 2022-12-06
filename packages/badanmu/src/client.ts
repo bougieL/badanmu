@@ -59,6 +59,7 @@ export interface Gift extends Msg {
 
 export interface SystemInfo extends Msg {
   type: 'system'
+  msgType: number
 }
 
 export type Message = Comment | Gift | SystemInfo
