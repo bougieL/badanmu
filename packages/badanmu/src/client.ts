@@ -89,8 +89,8 @@ export default abstract class Client extends EventEmiter {
     return `${this.platform || ''}平台，${this.roomID}房间`
   }
 
-  stop(code?: number | undefined, data?: string | undefined): void {
-    this.client?.close(code || 0, data)
+  stop(code?: number, data?: string): void {
+    this.client?.close(code, data)
   }
 
   emit(event: 'open'): boolean

@@ -7,14 +7,18 @@ function connect(...params: any[]) {
   /**
    * bilibili
    * 谷歌 139
-   * C酱 256
+   * C酱 213
+   * edzhang 5050
+   * xiao 15012554
    * me 250002
    */
-  const client = createClient('bilibili', 256)
+  const client = createClient('bilibili', 250002)
 
   client.on('open', () => console.log('connected'))
 
-  // client.on('message', console.log)
+  client.on('message', msg => {
+    console.log(msg)
+  })
 
   client.on('close', (code, reason) => {
     if (code === 0) {
@@ -24,7 +28,8 @@ function connect(...params: any[]) {
   })
 
   client.on('error', (...params) => {
-    setTimeout(connect, 5000)
+    console.error(...params)
+    // setTimeout(connect, 5000)
   })
 }
 

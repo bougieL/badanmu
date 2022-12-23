@@ -1,7 +1,7 @@
 import WebSocket from 'ws'
 import fetch from 'node-fetch'
 
-import { DanmuPacket, decode, encode, parseComment, parseGift, parseSystemInfo } from './helper'
+import { DanmuPacket, decode, encode, parseComment, parseGift, parseLiveInfo, parseSystemInfo } from './helper'
 import Client from '../client'
 
 const apiURL = 'https://api.live.bilibili.com/room/v1/Room/room_init'
@@ -45,7 +45,7 @@ const createClient = ({ info, onOpen, onClose, onMessage, onError }: Parameters)
         if (e instanceof Error) {
           onError?.(e)
         } else {
-          throw e
+          onError?.(new Error(String(e)))
         }
       }
     }
@@ -93,12 +93,18 @@ export default class Bilibili extends Client {
     const onMessage = (packet: DanmuPacket) => {
       packet.body.messages.forEach((msg) => {
         const cmd = msg.cmd.split(':').shift()
+        // console.log(msg)
         if (cmd === 'DANMU_MSG') {
           this.emit('message', parseComment(msg.info))
         } else if (cmd === 'SEND_GIFT') {
           this.emit('message', parseGift(msg.data))
         } else if (cmd === 'INTERACT_WORD') {
+          if (msg.data.msg_type !== 1 && msg.data.msg_type !== 2) {
+            // console.log(msg.data)
+          }
           this.emit('message', parseSystemInfo(msg.data))
+        } else if (cmd === 'LIVE' || cmd === 'PREPARING') {
+          this.emit('message', parseLiveInfo(msg))
         }
       })
     }

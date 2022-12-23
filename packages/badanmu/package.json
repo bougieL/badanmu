@@ -14,8 +14,8 @@
     "dev-client": "npx test-client",
     "prod-client": "cross-env NODE_ENV=production npx test-client",
     "lint": "eslint ./src --ext .js,.ts --fix",
-    "copy": "rsync -avum --include='*.js' ./src/ ./cjs && rsync -avum --include='*.js' ./src/ ./esm",
-    "prepublish": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && yarn copy"
+    "copy": "rsync -a --include '*.js' --include '*.d.ts' --exclude '*.ts' --exclude '*.json' src/",
+    "prepublish": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && yarn copy cjs/ && yarn copy esm/"
   },
   "keywords": [],
   "author": "",

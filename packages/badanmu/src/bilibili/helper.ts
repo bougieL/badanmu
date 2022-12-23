@@ -67,22 +67,28 @@ export const decode = (data: ArrayBuffer): DanmuPacket => {
       const headerLen = readInt(buffer, offset + 4, 2) // 16
       const chunk = buffer.slice(offset + headerLen, offset + packetLen)
       let body = [] as string[]
-
       if (ver === 0 || ver === 1) {
         body = [textDecoder.decode(chunk)]
       } else if (ver === 2) {
-        const content = textDecoder.decode(pako.inflate(chunk))
+        const content = textDecoder.decode(pako.inflate(chunk)) || ''
+        // console.log(content, typeof content)
         body = content.split(/[\x00-\x1f]+/)
       }
-
+      // console.log(body)
       if (body.length) {
-        body = body.filter((s) => s.startsWith('{') && s.endsWith('}'))
-        try {
-          const parse = (s: string) => s && JSON.parse(s)
-          result.body.messages = body.map(parse)
-        } catch (e) {
-          console.error(e)
-        }
+        // body = body.filter((s) => s.startsWith('{') && s.endsWith('}'))
+
+        // const parse = (s: string) => s && JSON.parse(s)
+        result.body.messages = body
+          .map((item) => {
+            try {
+              const result = JSON.parse(item)
+              return typeof result === 'object' ? result : false
+            } catch (error) {
+              return false
+            }
+          })
+          .filter(Boolean)
       }
       offset += packetLen
     }
@@ -101,7 +107,8 @@ export const parseComment = (rawMsg: any[]): Comment => {
     code: -1,
     commonType: -1,
     data: rawMsg[1],
-    avatar: rawMsg[0][13]?.url,
+    avatar: undefined,
+    image: rawMsg[0][13]?.url,
     playerName: rawMsg[2][1],
     ts: Date.now(),
     uuid: uuid(),
@@ -143,6 +150,22 @@ export const parseSystemInfo = (rawMsg: Record<string, any>): SystemInfo => {
     playerName: uname,
     commonType: 200,
     msgType: msg_type, // 1 - 進入直播間，2 - 關注直播間
+    uuid: uuid(),
+    ts: Date.now(),
+  }
+}
+
+export const parseLiveInfo = (rawMsg: Record<string, any>): SystemInfo => {
+  const { cmd, roomid } = rawMsg
+  const isStart = cmd === 'LIVE'
+
+  return {
+    type: 'system',
+    code: 200,
+    data: (isStart ? '直播已开始' : '直播已结束') + `，房间 ${roomid}`,
+    playerName: '',
+    commonType: 200,
+    msgType: isStart ? 101 : 102,
     uuid: uuid(),
     ts: Date.now(),
   }
